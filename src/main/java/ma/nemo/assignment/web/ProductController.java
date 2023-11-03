@@ -1,123 +1,79 @@
 package ma.nemo.assignment.web;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import ma.nemo.assignment.dto.ProductDto;
 import ma.nemo.assignment.domain.Product;
-import ma.nemo.assignment.domain.User;
 import ma.nemo.assignment.exceptions.ProductAlreadyExists;
 import ma.nemo.assignment.exceptions.ProductValidationException;
-import ma.nemo.assignment.repository.ProductRepository;
-import ma.nemo.assignment.repository.UserRepository;
+import ma.nemo.assignment.service.ProductService;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
 
-    Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
+    private final ProductService productService;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private ProductRepository productRepository;
+    public ProductController(ProductService productService, ModelMapper modelMapper) {
+        this.productService = productService;
+        this.modelMapper = modelMapper;
+    }
 
-    @Autowired
-    private UserRepository repo;
+    @PostMapping("/")
+    public ResponseEntity<Long> createProduct(@Valid @RequestBody ProductDto productDto)
+            throws ProductAlreadyExists, ProductValidationException {
+        LOGGER.info("Creating product: {}", productDto);
 
-    @PostMapping
-    public ResponseEntity<Long> createProduct(@RequestBody Product prd)
-        throws ProductAlreadyExists, ProductValidationException {
+        Product product = modelMapper.map(productDto, Product.class);
+        Product savedProduct = productService.createProduct(product);
 
-        LOGGER.info("Creating prd {}", prd);
-
-        Product p = productRepository.findByProductCode(prd.getProductCode());
-
-        if (p != null) {
-            System.out.printf("Product with code %s already exists", prd.getProductCode());
-            throw new ProductAlreadyExists();
-        }
-
-        if (prd.getProductCode().equals(null)) {
-            System.out.printf("Product code is null");
-            throw new ProductValidationException("Product code is null");
-        } else if (prd.getProductCode().equals("")) {
-            System.out.printf("Product code is empty");
-            throw new ProductValidationException("Product code is empty");
-        } else if (prd.getProductCode().length() > 10) {
-            System.out.printf("Product code is too long");
-            throw new ProductValidationException("Product code is too long");
-        } else if (prd.getProductCode().length() < 3) {
-            System.out.printf("Product code is too short");
-            throw new ProductValidationException("Product code is too short");
-        } else if (prd.getQuantityInStock() <= 0) {
-            System.out.printf("Product quantity is invalid");
-            throw new ProductValidationException("Product quantity is invalid");
-        } else if (prd.getUnitPrice().intValue() < 0) {
-            System.out.printf("Product price is invalid");
-            throw new ProductValidationException("Product price is invalid");
-        }
-
-        prd.setCreationDate(new Date());
-        prd.setModificationDate(new Date());
-
-        Product saved = productRepository.save(prd);
-        return new ResponseEntity<>(saved.getProductId(), HttpStatus.CREATED);
+        return new ResponseEntity<>(savedProduct.getProductId(), HttpStatus.CREATED);
     }
 
     @GetMapping("/list")
     public ResponseEntity<List<Product>> listProducts() {
         LOGGER.info("Listing products");
-        List<Product> prds = productRepository.findAll();
+        List<Product> products = productService.listProducts();
 
-        if (CollectionUtils.isEmpty(prds)) {
-            return null;
+        if (products.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(prds, HttpStatus.OK);
+            return new ResponseEntity<>(products, HttpStatus.OK);
         }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        if (optionalProduct.isPresent()) {
-            System.out.printf("Product with id %d found", id);
-            return new ResponseEntity<>(optionalProduct.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        Optional<Product> optionalProduct = productService.getProductById(id);
+
+        return optionalProduct
+                .map(product -> {
+                    LOGGER.info("Product with id {} found", id);
+                    return new ResponseEntity<>(product, HttpStatus.OK);
+                })
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        try {
-            productRepository.deleteById(id);
+        boolean deleted = productService.deleteProduct(id);
+
+        if (deleted) {
+            LOGGER.info("Product with id {} deleted", id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
+        } else {
+            LOGGER.error("Product with id {} not found for deletion", id);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    @GetMapping("list_users")
-    List<User> loadAllUtilisateur() {
-        List<User> all = repo.findAll();
-
-        if (CollectionUtils.isEmpty(all)) {
-            return null;
-        } else {
-            return all;
-        }
-    }
-
 }
-
