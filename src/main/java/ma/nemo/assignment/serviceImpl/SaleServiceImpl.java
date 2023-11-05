@@ -1,5 +1,6 @@
 package ma.nemo.assignment.serviceImpl;
 
+import lombok.RequiredArgsConstructor;
 import ma.nemo.assignment.domain.Product;
 import ma.nemo.assignment.domain.Sale;
 import ma.nemo.assignment.dto.SaleDto;
@@ -15,15 +16,12 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+
 public class SaleServiceImpl implements SaleService {
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
 
-    @Autowired
-    public SaleServiceImpl(SaleRepository saleRepository, ProductRepository productRepository) {
-        this.saleRepository = saleRepository;
-        this.productRepository = productRepository;
-    }
 
     @Override
     public SaleDto addSale(SaleDto saleDto) throws ProductNotFound, ProductQuantityNotInStock {

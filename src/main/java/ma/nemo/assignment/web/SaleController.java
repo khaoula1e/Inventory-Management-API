@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SaleController {
     private final SaleService saleService;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SupplyController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaleController.class);
 
     @PostMapping
     public ResponseEntity<?> addSale(@Valid @RequestBody SaleDto saleDTO) throws ProductNotFound, ProductQuantityNotInStock {

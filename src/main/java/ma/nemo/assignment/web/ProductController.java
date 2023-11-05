@@ -25,7 +25,7 @@ public class ProductController {
     private final ModelMapper modelMapper;
 
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto) {
         LOGGER.info("Creating product: {}", productDto);
 
