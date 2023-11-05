@@ -3,6 +3,8 @@ package ma.nemo.assignment.domain;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import jakarta.validation.constraints.NotBlank;
@@ -13,9 +15,10 @@ import jakarta.validation.constraints.NotBlank;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "Products")
-@ToString
+
 public class Product {
 
   @Id
@@ -36,9 +39,9 @@ public class Product {
 
   private Integer quantityInStock;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date creationDate;
+  @Column(columnDefinition = "TIMESTAMP")
+  private LocalDateTime creationDate;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date modificationDate;
+  @Column(columnDefinition = "TIMESTAMP")
+  private LocalDateTime modificationDate;
 }
