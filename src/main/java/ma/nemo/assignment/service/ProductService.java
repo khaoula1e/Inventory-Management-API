@@ -19,4 +19,10 @@ public interface ProductService {
 
     boolean deleteProduct(Long id) throws ProductNotFound;
 
+    List<ProductDto> getProductsBelowThreshold();
+
+    ProductDto setProductThreshold(String productCode, int threshold) throws ProductNotFound;
+
+
+
 }

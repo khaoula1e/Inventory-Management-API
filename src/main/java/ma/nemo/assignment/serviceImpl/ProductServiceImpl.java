@@ -13,7 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,6 +53,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDto> getListProducts() {
         List<Product> listProducts = productRepository.findAll();
+        if (listProducts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         List<ProductDto> listProductDtos = listProducts.stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
@@ -74,7 +78,6 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setQuantityInStock(productDto.getQuantityInStock());
         newProduct.setUnitPrice(productDto.getUnitPrice());
 
-        // Date courante
         LocalDateTime currentDate = LocalDateTime.now();
 
         // Initialiser les dates de création et de modification
@@ -83,10 +86,8 @@ public class ProductServiceImpl implements ProductService {
 
         // Enregistrer le produit
         try {
-            // Valider le produit, les exceptions de validation seront gérées globalement
             return productRepository.save(newProduct);
         } catch (DataIntegrityViolationException ex) {
-            // Si une exception liée à la base de données se produit, vous pouvez la gérer ici
             throw new ProductValidationException("Failed to create the product due to a database error.");
         }
     }
@@ -104,6 +105,35 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductNotFound("Product with id "+ id +" wasn't found");
         }
     }
+
+    @Override
+    public List<ProductDto> getProductsBelowThreshold() {
+        List<Product> productsBelowThreshold = productRepository.findProductsBelowThreshold();
+        if (productsBelowThreshold.isEmpty()) {
+            return Collections.emptyList(); // Renvoie une liste vide
+        }
+        List<ProductDto> productsBelowThresholdDtos = productsBelowThreshold.stream()
+                .map(productMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return productsBelowThresholdDtos;
+    }
+
+    @Override
+    public ProductDto setProductThreshold(String productCode, int threshold) throws ProductNotFound {
+        Optional<Product> productOptional = productRepository.findByProductCode(productCode);
+
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            product.setThresholdQuantity(threshold);
+            productRepository.save(product);
+
+            return productMapper.toDTO(product);
+        } else {
+            throw new ProductNotFound("Product with code " + productCode + " wasn't found");
+        }
+    }
+
 
 
 }
