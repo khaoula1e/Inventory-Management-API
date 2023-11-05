@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -44,4 +45,9 @@ public class Product {
 
   @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime modificationDate;
+
+  @OneToMany(mappedBy = "product")
+  private List<Supply> supplies;
+
+
 }

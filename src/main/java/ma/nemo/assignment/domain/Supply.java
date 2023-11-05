@@ -1,19 +1,19 @@
 package ma.nemo.assignment.domain;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @Table(name = "Supplies")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Supply {
 
   @Id
@@ -26,40 +26,12 @@ public class Supply {
 
   private Integer quantity;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date supplyDate;
+  @Column(columnDefinition = "TIMESTAMP")
+  private LocalDateTime supplyDate;
 
-  public Long getSupplyId() {
-    return supplyId;
-  }
+  @Column(columnDefinition = "TIMESTAMP")
+  @Basic(optional = true) // Cette annotation indique que le champ est optionnel
+  private LocalDateTime expirationDate;
 
-  public void setSupplyId(Long supplyId) {
-    this.supplyId = supplyId;
-  }
 
-  public Product getProduct() {
-    return product;
-  }
-
-  public void setProduct(Product product) {
-    this.product = product;
-  }
-
-  public Integer getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(Integer addedQuantity) {
-    this.quantity = addedQuantity;
-  }
-
-  public Date getSupplyDate() {
-    return supplyDate;
-  }
-
-  public void setSupplyDate(Date supplyDate) {
-    this.supplyDate = supplyDate;
-  }
-
-  // Getters, setters, etc.
 }
