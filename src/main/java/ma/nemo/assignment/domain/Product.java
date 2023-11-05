@@ -57,6 +57,7 @@ public class Product {
 
   private Integer thresholdQuantity;
 
-
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<TransactionHistory> transactions;
 
 }

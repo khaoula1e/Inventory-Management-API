@@ -1,21 +1,18 @@
 package ma.nemo.assignment.domain.util;
 
+import lombok.Getter;
+
 public enum EventType {
 
-  APPROVISIONNEMENT("Approvisionnement"),
+  SUPPLY("Supply"),
+  RETURN("Return"),
   SALE("sale");
 
+  @Getter
   private String type;
-
   EventType(String type) {
     this.type = type;
   }
 
-  public String getType() {
-    return type;
-  }
 
-  public void setType(String type) {
-    this.type = type;
-  }
 }
