@@ -46,8 +46,11 @@ public class Product {
   @Column(columnDefinition = "TIMESTAMP")
   private LocalDateTime modificationDate;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Supply> supplies;
+
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Sale> sales;
 
 
 }

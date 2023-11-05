@@ -1,5 +1,6 @@
 package ma.nemo.assignment.web;
 
+import lombok.RequiredArgsConstructor;
 import ma.nemo.assignment.dto.ProductDto;
 import ma.nemo.assignment.domain.Product;
 import ma.nemo.assignment.exceptions.*;
@@ -16,16 +17,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductController.class);
     private final ProductService productService;
     private final ModelMapper modelMapper;
 
-    public ProductController(ProductService productService, ModelMapper modelMapper) {
-        this.productService = productService;
-        this.modelMapper = modelMapper;
-    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto) {
