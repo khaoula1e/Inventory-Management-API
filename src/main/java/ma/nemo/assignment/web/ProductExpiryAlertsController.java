@@ -21,13 +21,17 @@ import java.util.List;
 @Slf4j
 public class ProductExpiryAlertsController {
     private final SupplyService supplyService;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductExpiryAlertsController.class);
-
 
     @GetMapping
-    public ResponseEntity<List<ProductDto>> listProductsNearingExpiryDate(@RequestParam int thresholdDays){
-        LOGGER.info("Listing products nearing their expiry date");
+    public ResponseEntity<List<ProductDto>> listProductsNearingExpiryDate(@RequestParam int thresholdDays) {
+        log.info("Listing products nearing their expiry date");
         List<ProductDto> productsNearingExpiryDate = supplyService.getProductsNearingExpiryDate(thresholdDays);
-        return new ResponseEntity<>(productsNearingExpiryDate, HttpStatus.OK);
+
+        if (productsNearingExpiryDate.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(productsNearingExpiryDate, HttpStatus.OK);
+        }
     }
 }
+

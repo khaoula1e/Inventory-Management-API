@@ -72,16 +72,13 @@ public class SupplyServiceImpl implements SupplyService {
     @Override
     public List<ProductDto> getProductsNearingExpiryDate(int thresholdDays) {
         LocalDateTime currentDate = LocalDateTime.now();
-        LocalDateTime thresholdEndTime = currentDate.plusDays(thresholdDays)
-                .withHour(23)
-                .withMinute(59)
-                .withSecond(59)
-                .withNano(999);
+        LocalDateTime thresholdDate = currentDate.plusDays(thresholdDays);
 
-        List<Supply> supplies = supplyRepository.findByExpirationDateBetween(currentDate, thresholdEndTime);
+        List<Supply> supplies = supplyRepository.findByExpirationDateBetween(currentDate, thresholdDate);
 
         return supplies.stream()
                 .map(supply -> productMapper.toDTO(supply.getProduct()))
                 .collect(Collectors.toList());
     }
+
 }
