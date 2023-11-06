@@ -1,10 +1,9 @@
 package ma.nemo.assignment.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ma.nemo.assignment.dto.SupplyDto;
-import ma.nemo.assignment.mapper.SupplyMapper;
-import ma.nemo.assignment.service.SupplyService;
-import ma.nemo.assignment.web.SupplyController;
+import ma.nemo.assignment.dto.SaleDto;
+import ma.nemo.assignment.service.SaleService;
+import ma.nemo.assignment.web.SaleController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,42 +15,39 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.time.LocalDateTime;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class SupplyControllerTest {
+public class SaleControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private SupplyService supplyService;
+    private SaleService saleService;
 
     @InjectMocks
-    private SupplyController supplyController;
+    private SaleController saleController;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(supplyController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(saleController).build();
     }
 
     @Test
     public void testAddSupply() throws Exception {
-        SupplyDto supplyDTO = new SupplyDto();
-        supplyDTO.setProductCode("TEST1");
-        supplyDTO.setQuantity(10);
-        supplyDTO.setExpirationDate(LocalDateTime.parse("2023-12-20T14:30:00"));
+        SaleDto saleDTO = new SaleDto();
+        saleDTO.setProductCode("TEST1");
+        saleDTO.setQuantity(10);
 
-        Mockito.when(supplyService.addProductToInventory(supplyDTO)).thenReturn(supplyDTO);
+        Mockito.when(saleService.addSale(saleDTO)).thenReturn(saleDTO);
 
-        String supplyJson = objectMapper.writeValueAsString(supplyDTO);
+        String supplyJson = objectMapper.writeValueAsString(saleDTO);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/supply")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/sale")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(supplyJson))
                 .andExpect(MockMvcResultMatchers.status().isCreated())

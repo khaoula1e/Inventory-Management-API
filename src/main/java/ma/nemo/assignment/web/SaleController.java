@@ -23,10 +23,18 @@ public class SaleController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaleController.class);
 
     @PostMapping
-    public ResponseEntity<?> addSale(@Valid @RequestBody SaleDto saleDTO) throws ProductNotFound, ProductQuantityNotInStock {
-        LOGGER.info("New Sale for product : " + saleDTO.getProductCode());
-        return new ResponseEntity<>(saleService.addSale(saleDTO), HttpStatus.CREATED);
+    public ResponseEntity<?> addSale(@Valid @RequestBody SaleDto saleDTO) {
+        try {
+            LOGGER.info("New Sale for product: " + saleDTO.getProductCode());
+            SaleDto result = saleService.addSale(saleDTO);
+            return new ResponseEntity<>(result, HttpStatus.CREATED);
+        } catch (ProductNotFound e) {
+            LOGGER.error("Product not found: " + e.getMessage());
+            return new ResponseEntity<>("Product not found: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (ProductQuantityNotInStock e) {
+            LOGGER.error("Product quantity not in stock: " + e.getMessage());
+            return new ResponseEntity<>("Product quantity not in stock: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
-
-
 }
+
