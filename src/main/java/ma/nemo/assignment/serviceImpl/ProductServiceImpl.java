@@ -1,5 +1,6 @@
 package ma.nemo.assignment.serviceImpl;
 
+import lombok.RequiredArgsConstructor;
 import ma.nemo.assignment.domain.Product;
 import ma.nemo.assignment.dto.ProductDto;
 import ma.nemo.assignment.exceptions.ProductAlreadyExists;
@@ -19,33 +20,31 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
-        this.productRepository = productRepository;
-        this.productMapper = productMapper;
-    }
+
 
 
     @Override
     public ProductDto getProductById(Long id) throws ProductNotFound {
         Optional<Product> product = productRepository.findById(id);
-        if(product.isPresent()){
+        if (product.isPresent()) {
             ProductDto productDto = productMapper.toDTO(product.get());
             return productDto;
         }
         throw new ProductNotFound("Product with id " + id + " wasn't found");
     }
 
-
     @Override
     public ProductDto getProductByCode(String productCode) throws ProductNotFound {
         Optional<Product> product = productRepository.findByProductCode(productCode);
-        if(product.isPresent()){
+        if (product.isPresent()) {
             ProductDto productDto = productMapper.toDTO(product.get());
+            return productDto;
         }
         throw new ProductNotFound("Product with code " + productCode + " wasn't found");
     }
@@ -53,15 +52,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDto> getListProducts() {
         List<Product> listProducts = productRepository.findAll();
-        if (listProducts.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<ProductDto> listProductDtos = listProducts.stream()
+        return listProducts.stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
-
-        return listProductDtos;
     }
     @Override
     public Product createProduct(ProductDto productDto) throws ProductAlreadyExists, ProductValidationException {
@@ -71,12 +64,7 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductAlreadyExists("Product with code: " + productDto.getProductCode() + " already exists");
         }
 
-        Product newProduct = new Product();
-        newProduct.setProductCode(productDto.getProductCode());
-        newProduct.setProductName(productDto.getProductName());
-        newProduct.setDescription(productDto.getDescription());
-        newProduct.setQuantityInStock(productDto.getQuantityInStock());
-        newProduct.setUnitPrice(productDto.getUnitPrice());
+        Product newProduct = productMapper.toEntity(productDto);
 
         LocalDateTime currentDate = LocalDateTime.now();
 
@@ -93,16 +81,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
     @Override
     public boolean deleteProduct(Long id) throws ProductNotFound{
         Optional<Product> product = productRepository.findById(id);
-        if(product.isPresent()){
+        if (product.isPresent()) {
             productRepository.deleteById(id);
             return true;
-        }
-        else {
-            throw new ProductNotFound("Product with id "+ id +" wasn't found");
+        } else {
+            throw new ProductNotFound("Product with id " + id + " wasn't found");
         }
     }
 

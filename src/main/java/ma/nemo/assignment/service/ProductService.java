@@ -1,5 +1,6 @@
 package ma.nemo.assignment.service;
 
+
 import ma.nemo.assignment.domain.Product;
 import ma.nemo.assignment.dto.ProductDto;
 import ma.nemo.assignment.exceptions.ProductAlreadyExists;
@@ -22,7 +23,5 @@ public interface ProductService {
     List<ProductDto> getProductsBelowThreshold();
 
     ProductDto setProductThreshold(String productCode, int threshold) throws ProductNotFound;
-
-
-
 }
+
