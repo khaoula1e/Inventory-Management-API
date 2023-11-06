@@ -31,46 +31,47 @@ public class ReturnServiceImpl implements ReturnService {
     public ReturnDto returnProduct(ReturnDto returnProductDto) throws ProductNotFound {
         Optional<Product> productOptional = productRepository.findByProductCode(returnProductDto.getProductCode());
 
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-
-            if (returnProductDto.getQuantity() <= 0) {
-                throw new IllegalArgumentException("La quantité de retour doit être supérieure à zéro.");
-            }
-
-            // Créer un objet Return pour représenter le retour de produit
-            Return returnedProduct = new Return();
-            returnedProduct.setProduct(product);
-            returnedProduct.setReturnQuantity(returnProductDto.getQuantity());
-            returnedProduct.setReturnDate(LocalDateTime.now());
-
-            returnProductRepository.save(returnedProduct);
-
-            // Mettre à jour la quantité en stock du produit
-            int newQuantityInStock = product.getQuantityInStock() + returnProductDto.getQuantity();
-            product.setQuantityInStock(newQuantityInStock);
-
-            // Mettre à jour les informations du produit
-            product.setModificationDate(LocalDateTime.now());
-
-            TransactionHistory transactionHistory = new TransactionHistory();
-            transactionHistory.setProduct(product);
-            transactionHistory.setQuantity(returnProductDto.getQuantity());
-            transactionHistory.setTransactionType(EventType.RETURN);
-            transactionHistory.setTransactionDate(LocalDateTime.now());
-            transactionHistory.setUser(null);
-
-            transactionHistoryService.addTransaction(transactionMapper.toDTO(transactionHistory));
-
-            // Créer un objet ReturnDto pour représenter le résultat du retour
-            ReturnDto returnResult = new ReturnDto();
-            returnResult.setProductCode(product.getProductCode());
-            returnResult.setQuantity(returnProductDto.getQuantity());
-            returnResult.setReason("Le produit a été retourné avec succès.");
-
-            return returnResult;
-        } else {
+        if (!productOptional.isPresent()) {
             throw new ProductNotFound("Produit non trouvé");
         }
+
+        Product product = productOptional.get();
+
+        if (returnProductDto.getQuantity() <= 0) {
+            throw new IllegalArgumentException("La quantité de retour doit être supérieure à zéro.");
+        }
+
+        // Créer un objet Return pour représenter le retour de produit
+        Return returnedProduct = new Return();
+        returnedProduct.setProduct(product);
+        returnedProduct.setReturnQuantity(returnProductDto.getQuantity());
+        returnedProduct.setReturnDate(LocalDateTime.now());
+
+        returnProductRepository.save(returnedProduct);
+
+        // Mettre à jour la quantité en stock du produit
+        int newQuantityInStock = product.getQuantityInStock() + returnProductDto.getQuantity();
+        product.setQuantityInStock(newQuantityInStock);
+
+        // Mettre à jour les informations du produit
+        product.setModificationDate(LocalDateTime.now());
+
+        // Créer un objet TransactionHistory pour enregistrer la transaction
+        TransactionHistory transactionHistory = new TransactionHistory();
+        transactionHistory.setProduct(product);
+        transactionHistory.setQuantity(returnProductDto.getQuantity());
+        transactionHistory.setTransactionType(EventType.RETURN);
+        transactionHistory.setTransactionDate(LocalDateTime.now());
+        transactionHistory.setUser(null);
+
+        transactionHistoryService.addTransaction(transactionMapper.toDTO(transactionHistory));
+
+        // Créer un objet ReturnDto pour représenter le résultat du retour
+        ReturnDto returnResult = new ReturnDto();
+        returnResult.setProductCode(product.getProductCode());
+        returnResult.setQuantity(returnProductDto.getQuantity());
+        returnResult.setReason("Le produit a été retourné avec succès.");
+
+        return returnResult;
     }
 }

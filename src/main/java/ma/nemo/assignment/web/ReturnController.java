@@ -25,8 +25,18 @@ public class ReturnController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReturnController.class);
 
     @PostMapping
-    public ResponseEntity<?> returnProduct(@Valid @RequestBody ReturnDto returnProductDTO) throws ProductNotFound {
-        LOGGER.info("Return Product to stock : " + returnProductDTO.getProductCode());
-        return new ResponseEntity<>(returnService.returnProduct(returnProductDTO), HttpStatus.CREATED);
+    public ResponseEntity<?> returnProduct(@Valid @RequestBody ReturnDto returnProductDTO) {
+        try {
+            LOGGER.info("Return Product to stock: " + returnProductDTO.getProductCode());
+            ReturnDto returnResult = returnService.returnProduct(returnProductDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(returnResult);
+        } catch (ProductNotFound ex) {
+            LOGGER.error("Product not found: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found: " + ex.getMessage());
+        } catch (Exception ex) {
+            LOGGER.error("An error occurred: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + ex.getMessage());
+        }
     }
+
 }
