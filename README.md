@@ -1,4 +1,3 @@
-Certainly! Here's an updated version of the assignment with a focus on API-first features:
 
 ## Description:
 
